@@ -5,4 +5,3 @@ E:\Mentoring\WindowsService\WSFilesArchivator\bin\Debug\Topshelf.dll
 E:\Mentoring\WindowsService\WSFilesArchivator\bin\Debug\Topshelf.xml
 E:\Mentoring\WindowsService\WSFilesArchivator\obj\Debug\WSFilesArchivator.exe
 E:\Mentoring\WindowsService\WSFilesArchivator\obj\Debug\WSFilesArchivator.pdb
-E:\Mentoring\WindowsService\WSFilesArchivator\obj\Debug\WSFilesArchivator.csprojResolveAssemblyReference.cache
