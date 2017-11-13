@@ -28,17 +28,18 @@ namespace WSFilesArchivator
 
         public bool Start()
         {
-            timer.Change(0, 3000);
-
-
+            timer.Change(0, 300000);
             return true;
         }
 
         public bool Stop()
         {
-            currentTask.Wait();
-            timer.Change(Timeout.Infinite, 0);
-            return true;
+            lock (_sync)
+            {
+                currentTask.Wait();
+                timer.Change(Timeout.Infinite, 0);
+                return true;
+            }
         }
 
         static object _sync = new object();
@@ -50,7 +51,7 @@ namespace WSFilesArchivator
                 currentTask = Task.Factory.StartNew(() =>
                 {
                     int count = Archivation();
-                    if (count == -1) { Console.WriteLine(@"Corrupted file was detected"); }
+                    if (count == -1) { Console.WriteLine(@"Directory is not exist"); }
                     if (count == 0) { Console.WriteLine(@"There are no files to create archive"); }
                     if (count > 0) { CreateArchive(batch); }
                 });
