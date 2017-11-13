@@ -28,7 +28,7 @@ namespace WSFilesArchivator
 
         public bool Start()
         {
-            timer.Change(0, 300000);
+            timer.Change(0, 30000);
             return true;
         }
 
@@ -98,17 +98,18 @@ namespace WSFilesArchivator
 
         private void CreateArchive(List<FileInfo> files)
         {
-            string zipName = $@"{resultFolderPath}{DateTime.Now.ToString("yyyyMMdd_hhmmss")}.zip";
+            string zipName = $@"{resultFolderPath}{DateTime.Now:yyyyMMdd_hhmmss_ff}.zip";
             using (ZipArchive newFile = ZipFile.Open(zipName, ZipArchiveMode.Create))
             {
                 foreach (var file in files)
                 {
+                    Thread.Sleep(1000);
                     newFile.CreateEntryFromFile(file.FullName, file.Name);
                 }
             }
             foreach (var file in files)
             {
-                file.Delete();
+                DoSeveralAttempts(() => file.Delete(), new TimeSpan(1000), 5);
             }
         }
 
@@ -124,6 +125,43 @@ namespace WSFilesArchivator
                 }
             }
             return indexofNum;
+        }
+
+        public static void DoSeveralAttempts(
+            Action action,
+            TimeSpan retryInterval,
+            int maxAttemptCount = 3)
+        {
+            Do<object>(() =>
+            {
+                action();
+                return null;
+            }, retryInterval, maxAttemptCount);
+        }
+
+        public static T Do<T>(
+            Func<T> action,
+            TimeSpan retryInterval,
+            int maxAttemptCount = 3)
+        {
+            var exceptions = new List<Exception>();
+
+            for (int attempted = 0; attempted < maxAttemptCount; attempted++)
+            {
+                try
+                {
+                    if (attempted > 0)
+                    {
+                        Thread.Sleep(retryInterval);
+                    }
+                    return action();
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+            throw new AggregateException(exceptions);
         }
     }
 }
